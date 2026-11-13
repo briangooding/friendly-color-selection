@@ -1,22 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#2c3358"/>
-      <stop offset="1" stop-color="#171a30"/>
-    </linearGradient>
-    <linearGradient id="stroke" gradientUnits="userSpaceOnUse" x1="104" y1="0" x2="340" y2="0">
-      <stop offset="0" stop-color="#ef5d7a"/>
-      <stop offset="1" stop-color="#ffb454"/>
-    </linearGradient>
-  </defs>
-  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <rect width="512" height="512" rx="112" fill="#15171d"/>
   <!-- smile, drawn as a single paint stroke -->
-  <path d="M112 262 Q226 412 340 262" fill="none" stroke="url(#stroke)" stroke-width="30" stroke-linecap="round"/>
+  <path d="M112 262 Q226 412 340 262" fill="none" stroke="#eceae4" stroke-width="20" stroke-linecap="round"/>
   <!-- paintbrush finishing the stroke -->
   <g transform="translate(340 262) rotate(37)">
-    <path d="M-12 -94 L12 -94 L7 -196 Q0 -206 -7 -196 Z" fill="#f3f4f8"/>
-    <rect x="-17" y="-96" width="34" height="40" rx="4" fill="#aab1c4"/>
-    <rect x="-17" y="-84" width="34" height="5" fill="#7d859c"/>
-    <path d="M-17 -58 L17 -58 C20 -34 12 -8 0 12 C-12 -8 -20 -34 -17 -58Z" fill="#ffb454"/>
+    <path d="M-9 -98 L9 -98 L5 -200 Q0 -207 -5 -200 Z" fill="#eceae4"/>
+    <rect x="-12" y="-90" width="24" height="30" fill="#c5a467"/>
+    <path d="M-12 -52 L12 -52 C14 -32 9 -10 0 6 C-9 -10 -14 -32 -12 -52Z" fill="#eceae4"/>
   </g>
 </svg>
