@@ -1,11 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <rect width="512" height="512" rx="112" fill="#15171d"/>
   <!-- smile, drawn as a single paint stroke -->
-  <path d="M112 262 Q226 412 340 262" fill="none" stroke="#eceae4" stroke-width="20" stroke-linecap="round"/>
+  <path d="M112 262 Q226 412 340 262" fill="none" stroke="#a5d3f5" stroke-width="20" stroke-linecap="round"/>
   <!-- paintbrush finishing the stroke -->
   <g transform="translate(340 262) rotate(37)">
     <path d="M-9 -98 L9 -98 L5 -200 Q0 -207 -5 -200 Z" fill="#eceae4"/>
     <rect x="-12" y="-90" width="24" height="30" fill="#c5a467"/>
-    <path d="M-12 -52 L12 -52 C14 -32 9 -10 0 6 C-9 -10 -14 -32 -12 -52Z" fill="#eceae4"/>
+    <path d="M-12 -52 L12 -52 C14 -32 9 -10 0 6 C-9 -10 -14 -32 -12 -52Z" fill="#a5d3f5"/>
   </g>
 </svg>

@@ -1,5 +1,5 @@
 // Network-first with cache fallback, so the app works offline once visited.
-const CACHE = 'friendly-color-v5';
+const CACHE = 'friendly-color-v6';
 const ASSETS = ['./', 'index.html', 'style.css', 'app.js', 'manifest.webmanifest',
   'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png',
   'data/sherwin-williams.json', 'data/benjamin-moore.json', 'data/valspar.json', 'data/behr.json'];
