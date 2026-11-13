@@ -183,6 +183,64 @@ function showRecipe() {
   }));
 }
 
+/* ---------- store paint matching ---------- */
+
+const store = $('store'), brand = $('brand');
+const brandData = {}; // brand id -> promise of [{ name, code, hex, lab }]
+
+function loadBrand(id) {
+  if (!brandData[id]) {
+    brandData[id] = fetch(`data/${id}.json`)
+      .then((res) => { if (!res.ok) throw new Error(res.status); return res.json(); })
+      .then((rows) => rows.map(([name, code, hex]) => {
+        const { r, g, b } = hexToRgb('#' + hex);
+        return { name, code, hex: '#' + hex, lab: linToLab([r, g, b].map(srgbToLin)) };
+      }))
+      .catch((err) => { delete brandData[id]; throw err; });
+  }
+  return brandData[id];
+}
+
+async function showStoreMatches() {
+  if (!currentRgb || !store.open) return;
+  const id = brand.value, rgb = currentRgb;
+  const status = $('storeStatus'), list = $('storeList');
+  let colors;
+  try {
+    colors = await loadBrand(id);
+  } catch {
+    if (id === brand.value) {
+      status.textContent = 'Could not load this brand\u2019s colors. Check your connection and try again.';
+      list.replaceChildren();
+    }
+    return;
+  }
+  if (id !== brand.value || rgb !== currentRgb) return; // a newer request superseded this one
+  const t = linToLab([rgb.r, rgb.g, rgb.b].map(srgbToLin));
+  const top = colors
+    .map((c) => ({ c, d: Math.hypot(c.lab[0] - t[0], c.lab[1] - t[1], c.lab[2] - t[2]) }))
+    .sort((x, y) => x.d - y.d)
+    .slice(0, 3);
+  status.textContent = `Closest 3 of ${colors.length.toLocaleString()} colors`;
+  list.replaceChildren(...top.map(({ c, d }) => {
+    const li = document.createElement('li');
+    const dot = Object.assign(document.createElement('span'), { className: 'dot big' });
+    dot.style.background = c.hex;
+    const who = Object.assign(document.createElement('span'), { className: 'who' });
+    who.append(
+      Object.assign(document.createElement('span'), { textContent: c.name }),
+      Object.assign(document.createElement('small'), { textContent: `${c.code} \u00b7 ${c.hex}` })
+    );
+    const fit = Object.assign(document.createElement('span'), { className: 'parts' });
+    fit.textContent = d < 2 ? 'Near exact' : d < 5 ? 'Very close' : d < 10 ? 'Close' : 'Loose';
+    li.append(dot, who, fit);
+    return li;
+  }));
+}
+
+store.addEventListener('toggle', showStoreMatches);
+brand.addEventListener('change', showStoreMatches);
+
 /* ---------- UI ---------- */
 
 function say(text, isError = false) {
@@ -247,6 +305,8 @@ function showColor(rgb) {
   currentRgb = rgb;
   paint.hidden = false;
   showRecipe();
+  store.hidden = false;
+  showStoreMatches();
 }
 
 /* ---------- camera ---------- */

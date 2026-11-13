@@ -66,6 +66,21 @@
       <ul class="recipe" id="recipe"></ul>
       <p class="paint-note">This is an estimate. Paints differ by brand and dry a little darker, so mix a small test first and adjust.</p>
     </details>
+    <details class="paint" id="store" hidden>
+      <summary>Match a store paint color</summary>
+      <label class="brand-pick">
+        <span>Paint brand</span>
+        <select id="brand">
+          <option value="sherwin-williams">Sherwin-Williams</option>
+          <option value="benjamin-moore">Benjamin Moore</option>
+          <option value="valspar">Lowe's (Valspar)</option>
+          <option value="behr">The Home Depot (Behr)</option>
+        </select>
+      </label>
+      <p class="paint-quality" id="storeStatus"></p>
+      <ul class="recipe" id="storeList"></ul>
+      <p class="paint-note">Closest colors by on-screen value. Screens and photos shift color, so compare a real paint chip in the store before buying. Not affiliated with these brands; color lists may be out of date.</p>
+    </details>
   </main>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>

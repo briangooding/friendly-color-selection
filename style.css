@@ -160,6 +160,23 @@ details.paint summary:focus-visible { outline: 3px solid var(--accent); outline-
 .recipe .dot { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--line); flex: none; }
 .recipe .parts { margin-left: auto; font-weight: 700; white-space: nowrap; }
 
+.brand-pick { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-weight: 600; font-size: .92rem; }
+select {
+  font: inherit;
+  color: var(--ink);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px 12px;
+  min-height: 48px;
+  max-width: 62%;
+}
+select:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.recipe .who { display: flex; flex-direction: column; min-width: 0; }
+.recipe .who small { color: var(--muted); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+.recipe .big { width: 48px; height: 48px; border-radius: 12px; }
+.recipe .parts small { display: block; font-weight: 500; color: var(--muted); text-align: right; }
+
 .toast {
   position: fixed;
   left: 50%;

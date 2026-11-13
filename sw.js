@@ -1,7 +1,8 @@
 // Network-first with cache fallback, so the app works offline once visited.
-const CACHE = 'friendly-color-v2';
+const CACHE = 'friendly-color-v3';
 const ASSETS = ['./', 'index.html', 'style.css', 'app.js', 'manifest.webmanifest',
-  'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png'];
+  'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png',
+  'data/sherwin-williams.json', 'data/benjamin-moore.json', 'data/valspar.json', 'data/behr.json'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)).then(() => self.skipWaiting()));
