@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Friendly Color Selection</title>
+  <meta name="description" content="Snap a photo, tap a color, get its hex code and matching palettes.">
+  <meta name="theme-color" content="#ff9f1c">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-180.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <img src="icons/icon.svg" alt="" width="40" height="40">
+    <h1>Friendly Color Selection</h1>
+  </header>
+
+  <main>
+    <section class="stage" id="stage" data-mode="idle">
+      <div class="placeholder" id="placeholder">
+        <img src="icons/icon.svg" alt="" width="96" height="96">
+        <p>Take a picture, then tap any spot to grab its color.</p>
+      </div>
+      <video id="video" playsinline muted autoplay></video>
+      <div class="photo-wrap" id="photoWrap">
+        <canvas id="photo" aria-label="Captured photo. Tap or drag to pick a color."></canvas>
+        <div class="marker" id="marker" hidden></div>
+        <canvas class="loupe" id="loupe" width="110" height="110" hidden></canvas>
+      </div>
+    </section>
+
+    <p class="message" id="message" role="status" aria-live="polite"></p>
+
+    <div class="controls">
+      <button class="primary" id="cameraBtn" type="button">Open camera</button>
+      <button id="flipBtn" type="button" hidden>Flip camera</button>
+      <label class="button" id="fileLabel">
+        Choose photo
+        <input id="fileInput" type="file" accept="image/*" hidden>
+      </label>
+    </div>
+
+    <section class="result" id="result" hidden>
+      <button class="chip" id="chip" type="button" aria-label="Copy hex code">
+        <span class="hex" id="hex">#000000</span>
+        <span class="hint">tap to copy</span>
+      </button>
+      <dl class="values">
+        <div><dt>RGB</dt><dd id="rgb"></dd></div>
+        <div><dt>HSL</dt><dd id="hsl"></dd></div>
+      </dl>
+    </section>
+
+    <section id="palettes" hidden></section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
