@@ -4,7 +4,7 @@ const $ = (id) => document.getElementById(id);
 const stage = $('stage'), video = $('video'), photo = $('photo'), photoWrap = $('photoWrap');
 const marker = $('marker'), loupe = $('loupe'), message = $('message');
 const cameraBtn = $('cameraBtn'), flipBtn = $('flipBtn'), fileInput = $('fileInput');
-const result = $('result'), chip = $('chip'), palettes = $('palettes'), toast = $('toast');
+const result = $('result'), chip = $('chip'), palettes = $('palettes'), toast = $('toast'), paint = $('paint');
 
 const ctx = photo.getContext('2d', { willReadFrequently: true });
 const loupeCtx = loupe.getContext('2d');
@@ -72,6 +72,117 @@ function buildPalettes(hsl) {
   ];
 }
 
+/* ---------- paint mixing ---------- */
+
+// Typical colors of common artist tube paints, straight from the tube.
+const PAINTS = [
+  { name: 'Titanium White', hex: '#F7F7F2' },
+  { name: 'Ivory Black', hex: '#1C1C1E' },
+  { name: 'Cadmium Yellow', hex: '#FFD300' },
+  { name: 'Yellow Ochre', hex: '#C8912D' },
+  { name: 'Cadmium Red', hex: '#D9232B' },
+  { name: 'Quinacridone Magenta', hex: '#B0175A' },
+  { name: 'Ultramarine Blue', hex: '#1F2F9E' },
+  { name: 'Phthalo Blue', hex: '#0B4F9C' },
+  { name: 'Phthalo Green', hex: '#0A6B52' },
+  { name: 'Burnt Umber', hex: '#5B3A24' },
+];
+
+const srgbToLin = (v) => { v /= 255; return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; };
+const linToSrgb = (v) => Math.round(255 * (v <= 0.0031308 ? v * 12.92 : 1.055 * v ** (1 / 2.4) - 0.055));
+const hexToRgb = (hex) => ({ r: parseInt(hex.slice(1, 3), 16), g: parseInt(hex.slice(3, 5), 16), b: parseInt(hex.slice(5, 7), 16) });
+
+// Paint mixes by absorbing light, not adding it (blue + yellow gives green, not grey).
+// Kubelka-Munk models that: each paint gets an absorption/scatter ratio per color
+// channel, and those ratios blend in proportion to the amount of each paint.
+for (const p of PAINTS) {
+  const { r, g, b } = hexToRgb(p.hex);
+  p.ks = [r, g, b].map((v) => { const R = Math.max(0.004, srgbToLin(v)); return (1 - R) ** 2 / (2 * R); });
+}
+
+function mixPaints(indexes, parts) {
+  const total = parts.reduce((a, b) => a + b, 0);
+  const lin = [0, 1, 2].map((ch) => {
+    let ks = 0;
+    indexes.forEach((pi, i) => { ks += PAINTS[pi].ks[ch] * parts[i] / total; });
+    return 1 + ks - Math.sqrt(ks * ks + 2 * ks);
+  });
+  return lin;
+}
+
+// CIE Lab, so "closest" means closest to the eye rather than closest in RGB numbers.
+function linToLab([r, g, b]) {
+  const f = (t) => (t > 0.008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116);
+  const x = f((0.4124 * r + 0.3576 * g + 0.1805 * b) / 0.95047);
+  const y = f(0.2126 * r + 0.7152 * g + 0.0722 * b);
+  const z = f((0.0193 * r + 0.1192 * g + 0.9505 * b) / 1.08883);
+  return [116 * y - 16, 500 * (x - y), 200 * (y - z)];
+}
+
+const gcd = (a, b) => (b ? gcd(b, a % b) : a);
+// Strong paints (black, phthalos) overpower others, so amounts must be able to differ a lot.
+const AMOUNTS = [1, 2, 3, 4, 6, 8, 12, 16, 24, 32, 48];
+
+// Try every recipe of up to three paints and keep the closest, gently preferring simpler ones.
+function findRecipe(rgb) {
+  const target = linToLab([rgb.r, rgb.g, rgb.b].map(srgbToLin));
+  let best = null;
+  const consider = (indexes, parts) => {
+    const lin = mixPaints(indexes, parts);
+    const lab = linToLab(lin);
+    const dE = Math.hypot(lab[0] - target[0], lab[1] - target[1], lab[2] - target[2]);
+    const score = dE + 0.5 * indexes.length + 0.01 * parts.reduce((x, y) => x + y, 0);
+    if (!best || score < best.score) best = { score, dE, indexes, parts, lin };
+  };
+  const n = PAINTS.length;
+  for (let i = 0; i < n; i++) {
+    consider([i], [1]);
+    for (let j = i + 1; j < n; j++) {
+      for (const a of AMOUNTS) {
+        for (const b of AMOUNTS) {
+          if (gcd(a, b) === 1) consider([i, j], [a, b]);
+          for (let k = j + 1; k < n; k++) {
+            for (const c of AMOUNTS) {
+              if (gcd(gcd(a, b), c) === 1) consider([i, j, k], [a, b, c]);
+            }
+          }
+        }
+      }
+    }
+  }
+  const mixRgb = { r: linToSrgb(best.lin[0]), g: linToSrgb(best.lin[1]), b: linToSrgb(best.lin[2]) };
+  const items = best.indexes
+    .map((pi, i) => ({ ...PAINTS[pi], parts: best.parts[i] }))
+    .sort((x, y) => y.parts - x.parts);
+  return { items, mixRgb, dE: best.dE };
+}
+
+let currentRgb = null;
+
+function showRecipe() {
+  if (!currentRgb || !paint.open) return;
+  const { items, mixRgb, dE } = findRecipe(currentRgb);
+  const set = (el, rgb) => { el.style.background = toHex(rgb); el.style.color = inkFor(rgb); };
+  set($('paintTarget'), currentRgb);
+  set($('paintMix'), mixRgb);
+  $('paintQuality').textContent =
+    dE < 4 ? 'Very close match.' :
+    dE < 10 ? 'Close match — expect a slight difference.' :
+    'Nearest these paints can get — this exact color is beyond what a simple mix can reach.';
+  $('recipe').replaceChildren(...items.map((it) => {
+    const li = document.createElement('li');
+    const dot = Object.assign(document.createElement('span'), { className: 'dot' });
+    dot.style.background = it.hex;
+    const name = Object.assign(document.createElement('span'), { textContent: it.name });
+    const parts = Object.assign(document.createElement('span'), {
+      className: 'parts',
+      textContent: items.length === 1 ? 'straight from the tube' : `${it.parts} ${it.parts === 1 ? 'part' : 'parts'}`,
+    });
+    li.append(dot, name, parts);
+    return li;
+  }));
+}
+
 /* ---------- UI ---------- */
 
 function say(text, isError = false) {
@@ -132,6 +243,10 @@ function showColor(rgb) {
     return section;
   }));
   palettes.hidden = false;
+
+  currentRgb = rgb;
+  paint.hidden = false;
+  showRecipe();
 }
 
 /* ---------- camera ---------- */
@@ -282,6 +397,8 @@ photo.addEventListener('pointermove', (e) => {
 for (const type of ['pointerup', 'pointercancel']) {
   photo.addEventListener(type, () => { loupe.hidden = true; });
 }
+
+paint.addEventListener('toggle', showRecipe);
 
 document.addEventListener('click', (e) => {
   const el = e.target.closest('[data-hex]');

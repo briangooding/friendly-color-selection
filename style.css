@@ -137,6 +137,29 @@ dd { margin: 0; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, mono
 }
 .swatch:focus-visible { outline-offset: -4px; }
 
+details.paint {
+  margin-top: 26px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0 16px;
+}
+details.paint summary {
+  cursor: pointer;
+  font-weight: 700;
+  padding: 16px 0;
+  min-height: 48px;
+}
+details.paint summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
+.paint-intro, .paint-note, .paint-quality { margin: 0 0 12px; color: var(--muted); font-size: .88rem; }
+.paint-quality { color: var(--ink); font-weight: 600; margin-top: 10px; }
+.compare { display: flex; border-radius: 14px; overflow: hidden; border: 1px solid var(--line); }
+.compare div { flex: 1 1 0; min-height: 84px; display: flex; align-items: flex-end; justify-content: center; padding: 8px 4px; font-size: .8rem; font-weight: 600; }
+.recipe { list-style: none; margin: 0 0 14px; padding: 0; }
+.recipe li { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); }
+.recipe .dot { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--line); flex: none; }
+.recipe .parts { margin-left: auto; font-weight: 700; white-space: nowrap; }
+
 .toast {
   position: fixed;
   left: 50%;
